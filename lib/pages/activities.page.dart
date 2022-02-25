@@ -1,11 +1,14 @@
+import 'package:dads_app/api/api.client.dart';
 import 'package:dads_app/models/activity/activity_list_item.model.dart';
 import 'package:dads_app/pages/album.page.dart';
 import 'package:dads_app/utils/family.util.dart';
 import 'package:dads_app/utils/theme.util.dart';
 import 'package:dads_app/widgets/activities_page/activity.widget.dart';
 import 'package:dads_app/widgets/album_page/header.widget.dart';
+import 'package:dads_app/widgets/modal.widget.dart';
 import 'package:dads_app/widgets/tab.widget.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ActivitiesPage extends StatefulWidget {
   const ActivitiesPage({Key? key}) : super(key: key);
@@ -17,6 +20,9 @@ class ActivitiesPage extends StatefulWidget {
 }
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
+  final TextEditingController _activityController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
   List<ActivityListItem> _activities = [];
 
   @override
@@ -31,6 +37,96 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     setState(() {
       _activities = _temp;
     });
+  }
+
+  void createItem() async {
+    SharedPreferences _storage = await SharedPreferences.getInstance();
+
+    final int _me = _storage.getInt('me') ?? 2;
+    final int _family = _storage.getInt('family') ?? 2;
+
+    final Map<String, dynamic> create = {
+      'data': {
+        'short': _activityController.text,
+        'description': _descriptionController.text,
+        'uploader': _me,
+        'family': _family,
+      }
+    };
+
+    try {
+      await API.post(
+        '/activities',
+        create,
+      );
+
+      _loadActivities();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void addActivity() {
+    showDialog(
+      context: context,
+      builder: (context) => Modal(
+        body: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          height: 260.0,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextField(
+                  controller: _activityController,
+                  decoration: AppTheme.inputDecoration.copyWith(
+                    label: const Text(
+                      'Activity',
+                      style: TextStyle(color: AppTheme.primary),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15.0),
+                TextField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  decoration: AppTheme.inputDecoration.copyWith(
+                    label: const Text(
+                      'Description',
+                      style: TextStyle(color: AppTheme.primary),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      child: const Text('Close'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    TextButton(
+                      child: const Text(
+                        'Create',
+                        style: TextStyle(color: AppTheme.primary),
+                      ),
+                      onPressed: () {
+                        createItem();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -125,6 +221,11 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => addActivity(),
+        child: const Icon(Icons.add),
+        backgroundColor: AppTheme.primary,
       ),
     );
   }

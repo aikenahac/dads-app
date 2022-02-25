@@ -18,4 +18,12 @@ class AppTheme {
     color: Colors.white,
     fontSize: 16,
   );
+
+  static const inputDecoration = InputDecoration(
+    border: OutlineInputBorder(),
+    focusColor: AppTheme.primary,
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: AppTheme.primary, width: 2.0),
+    ),
+  );
 }

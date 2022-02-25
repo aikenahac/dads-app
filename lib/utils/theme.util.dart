@@ -26,4 +26,19 @@ class AppTheme {
       borderSide: BorderSide(color: AppTheme.primary, width: 2.0),
     ),
   );
+
+  static final loginInputDecoration = InputDecoration(
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15.0),
+    ),
+    fillColor: AppTheme.primary,
+    filled: true,
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15.0),
+      borderSide: const BorderSide(
+        color: Colors.white,
+        width: 2.0,
+      ),
+    ),
+  );
 }

@@ -14,7 +14,7 @@ import 'package:image_picker/image_picker.dart';
 class AlbumPage extends StatefulWidget {
   const AlbumPage({Key? key}) : super(key: key);
 
-  static const routeName = '/';
+  static const routeName = '/album';
 
   @override
   State<AlbumPage> createState() => _AlbumPageState();

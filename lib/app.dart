@@ -1,4 +1,6 @@
 import 'package:dads_app/pages/activities.page.dart';
+import 'package:dads_app/pages/base.page.dart';
+import 'package:dads_app/pages/login.page.dart';
 import 'package:flutter/material.dart';
 import 'package:dads_app/pages/album.page.dart';
 
@@ -9,10 +11,12 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: AlbumPage.routeName,
+      initialRoute: BasePage.routeName,
       routes: {
+        BasePage.routeName: (_) => const BasePage(),
         AlbumPage.routeName: (_) => const AlbumPage(),
         ActivitiesPage.routeName: (_) => const ActivitiesPage(),
+        LoginPage.routeName: (_) => LoginPage(),
       },
     );
   }

@@ -43,6 +43,9 @@ Future<List<AlbumPhoto>> getFamilyAlbum() async {
 
   Me _me = Me.fromJson(_meJson);
 
+  _storage.setInt('family', _me.family.id);
+  _storage.setInt('me', _me.id);
+
   final _familyJson = await API.get('/families/${_me.family.id}?populate=*');
 
   final List<AlbumPhotoID> _albumPhotosIDs = List.from(

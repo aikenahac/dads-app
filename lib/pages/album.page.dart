@@ -5,8 +5,11 @@ import 'package:dads_app/utils/family.util.dart';
 import 'package:dads_app/utils/theme.util.dart';
 import 'package:dads_app/widgets/album_page/header.widget.dart';
 import 'package:dads_app/widgets/album_page/photo.widget.dart';
+import 'package:dads_app/widgets/modal.widget.dart';
 import 'package:dads_app/widgets/tab.widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AlbumPage extends StatefulWidget {
   const AlbumPage({Key? key}) : super(key: key);
@@ -18,6 +21,8 @@ class AlbumPage extends StatefulWidget {
 }
 
 class _AlbumPageState extends State<AlbumPage> {
+  final ImagePicker _picker = ImagePicker();
+
   List<AlbumPhoto> _album = [];
 
   @override
@@ -32,6 +37,35 @@ class _AlbumPageState extends State<AlbumPage> {
     setState(() {
       _album = _temp;
     });
+  }
+
+  void _uploadImage(String type) async {
+    final XFile? _image;
+    if (type == 'gallery') {
+      _image = await _picker.pickImage(source: ImageSource.gallery);
+    } else if (type == 'camera') {
+      _image = await _picker.pickImage(source: ImageSource.camera);
+    } else {
+      _image = await _picker.pickImage(source: ImageSource.gallery);
+    }
+
+    if (_image != null) {
+      await API.postPhoto('/upload', _image);
+
+      _loadAlbum();
+    }
+  }
+
+  void enlargePhoto(height, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Modal(
+        body: Image.network(
+          imageUrl,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
   }
 
   @override
@@ -105,24 +139,53 @@ class _AlbumPageState extends State<AlbumPage> {
               child: SizedBox(
                 width: width,
                 height: height * 0.7,
-                child: GridView.count(
-                  mainAxisSpacing: 7.0,
-                  crossAxisSpacing: 7.0,
-                  crossAxisCount: 3,
-                  physics: const BouncingScrollPhysics(),
-                  children: List.generate(
-                    _album.length,
-                    (i) {
-                      return PhotoWidget(
-                        image: API.baseUrl + _album[i].image.url,
-                      );
-                    },
-                  ),
-                ),
+                child: _album.isNotEmpty
+                    ? GridView.count(
+                        mainAxisSpacing: 7.0,
+                        crossAxisSpacing: 7.0,
+                        crossAxisCount: 3,
+                        physics: const BouncingScrollPhysics(),
+                        children: List.generate(
+                          _album.length,
+                          (i) {
+                            return GestureDetector(
+                              onTap: () => enlargePhoto(
+                                height,
+                                API.baseUrl + _album[i].image.url,
+                              ),
+                              child: PhotoWidget(
+                                image: API.baseUrl + _album[i].image.url,
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Container(),
               ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: SpeedDial(
+        overlayOpacity: 0.0,
+        backgroundColor: AppTheme.primary,
+        animatedIcon: AnimatedIcons.menu_close,
+        children: [
+          SpeedDialChild(
+            label: 'Camera',
+            child: const Icon(Icons.photo_camera_outlined),
+            onTap: () => _uploadImage('camera'),
+            backgroundColor: AppTheme.primary,
+            foregroundColor: Colors.white,
+          ),
+          SpeedDialChild(
+            label: 'Gallery',
+            child: const Icon(Icons.photo),
+            onTap: () => _uploadImage('gallery'),
+            backgroundColor: AppTheme.primary,
+            foregroundColor: Colors.white,
+          ),
+        ],
       ),
     );
   }

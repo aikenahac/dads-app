@@ -1,5 +1,4 @@
-import 'package:dads_app/api/api.client.dart';
-import 'package:dads_app/models/activity_list_item.model.dart';
+import 'package:dads_app/models/activity/activity_list_item.model.dart';
 import 'package:dads_app/pages/album.page.dart';
 import 'package:dads_app/utils/family.util.dart';
 import 'package:dads_app/utils/theme.util.dart';

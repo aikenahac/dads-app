@@ -1,4 +1,4 @@
-import 'package:dads_app/models/activity_li_attributes.model.dart';
+import 'package:dads_app/models/activity/activity_li_attributes.model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_list_item.model.g.dart';

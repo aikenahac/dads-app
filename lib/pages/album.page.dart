@@ -1,14 +1,38 @@
+import 'package:dads_app/api/api.client.dart';
+import 'package:dads_app/models/album/album_photo.model.dart';
 import 'package:dads_app/pages/activities.page.dart';
+import 'package:dads_app/utils/family.util.dart';
 import 'package:dads_app/utils/theme.util.dart';
 import 'package:dads_app/widgets/album_page/header.widget.dart';
 import 'package:dads_app/widgets/album_page/photo.widget.dart';
 import 'package:dads_app/widgets/tab.widget.dart';
 import 'package:flutter/material.dart';
 
-class AlbumPage extends StatelessWidget {
+class AlbumPage extends StatefulWidget {
   const AlbumPage({Key? key}) : super(key: key);
 
   static const routeName = '/';
+
+  @override
+  State<AlbumPage> createState() => _AlbumPageState();
+}
+
+class _AlbumPageState extends State<AlbumPage> {
+  List<AlbumPhoto> _album = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAlbum();
+  }
+
+  void _loadAlbum() async {
+    final List<AlbumPhoto> _temp = await getFamilyAlbum();
+
+    setState(() {
+      _album = _temp;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,10 +111,10 @@ class AlbumPage extends StatelessWidget {
                   crossAxisCount: 3,
                   physics: const BouncingScrollPhysics(),
                   children: List.generate(
-                    10,
-                    (index) {
-                      return const PhotoWidget(
-                        image: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Family_Portrait.jpg',
+                    _album.length,
+                    (i) {
+                      return PhotoWidget(
+                        image: API.baseUrl + _album[i].image.url,
                       );
                     },
                   ),

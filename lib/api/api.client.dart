@@ -7,7 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Class that holds all the network requests
 class API {
-  static const String apiUrl = 'https://dapi.aikenahac.com/api';
+  static const String baseUrl = 'https://dapi.aikenahac.com';
+  static const String apiUrl = '$baseUrl/api';
 
   // GET function
   // Retrieves JSON data from the API to the app

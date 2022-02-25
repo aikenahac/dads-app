@@ -1,5 +1,5 @@
-import 'package:dads_app/models/user/profile_picture.model.dart';
-import 'package:dads_app/models/user/user_family.model.dart';
+import 'package:dads_app/models/me/profile_picture.model.dart';
+import 'package:dads_app/models/me/user_family.model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'me.model.g.dart';

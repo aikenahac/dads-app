@@ -21,7 +21,6 @@ class ActivitiesPage extends StatefulWidget {
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
   final TextEditingController _activityController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
 
   List<ActivityListItem> _activities = [];
 
@@ -48,7 +47,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     final Map<String, dynamic> create = {
       'data': {
         'short': _activityController.text,
-        'description': _descriptionController.text,
         'uploader': _me,
         'family': _family,
       }
@@ -75,7 +73,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(15.0),
           ),
-          height: 260.0,
+          height: 180.0,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -92,16 +90,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                   ),
                 ),
                 const SizedBox(height: 15.0),
-                TextField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: AppTheme.inputDecoration.copyWith(
-                    label: const Text(
-                      'Description',
-                      style: TextStyle(color: AppTheme.primary),
-                    ),
-                  ),
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

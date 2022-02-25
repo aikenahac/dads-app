@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:dads_app/api/exceptions/bad_request.exception.dart';
 import 'package:dads_app/api/exceptions/forbidden.exception.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Class that holds all the network requests
 class API {
@@ -11,11 +12,21 @@ class API {
   // GET function
   // Retrieves JSON data from the API to the app
   static Future<Map<String, dynamic>> get(String endpoint) async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+
+    String? token = storage.getString('token');
+
     final url = Uri.parse(apiUrl + endpoint);
 
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
+
+    if (token != null) {
+      headers.addAll({
+        'Authorization': token,
+      });
+    }
 
     final response = await http.get(
       url,
@@ -31,11 +42,21 @@ class API {
   // Sends JSON data to the app from the API
   // Used for adding new items
   static Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+
+    String? token = storage.getString('token');
+
     final url = Uri.parse(apiUrl + endpoint);
 
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
+
+    if (token != null) {
+      headers.addAll({
+        'Authorization': token,
+      });
+    }
 
     final response = await http.post(
       url,
@@ -61,11 +82,21 @@ class API {
   // Sends JSON data to the app from the API
   // Used for updating existing items
   static Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> body) async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+
+    String? token = storage.getString('token');
+
     final url = Uri.parse(apiUrl + endpoint);
 
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
+
+    if (token != null) {
+      headers.addAll({
+        'Authorization': token,
+      });
+    }
 
     final response = await http.put(
       url,
@@ -90,11 +121,21 @@ class API {
   // DELETE function
   // Deletes an existing item from the app
   static Future<Map<String, dynamic>> delete(String endpoint) async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+
+    String? token = storage.getString('token');
+
     final url = Uri.parse(apiUrl + endpoint);
 
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
+
+    if (token != null) {
+      headers.addAll({
+        'Authorization': token,
+      });
+    }
 
     final response = await http.delete(
       url,

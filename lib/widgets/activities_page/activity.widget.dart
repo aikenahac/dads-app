@@ -1,5 +1,7 @@
+import 'package:dads_app/api/api.client.dart';
 import 'package:dads_app/utils/theme.util.dart';
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 
 final _doneStyle = AppTheme.textStyle.copyWith(
   fontWeight: FontWeight.w600,
@@ -40,7 +42,7 @@ class ActivityWidget extends StatefulWidget {
 }
 
 class _ActivityWidgetState extends State<ActivityWidget> {
-  bool _bought = false;
+  bool _done = false;
   String _name = '';
 
   @override
@@ -51,9 +53,28 @@ class _ActivityWidgetState extends State<ActivityWidget> {
 
   void _initData() {
     setState(() {
-      _bought = widget.done;
+      _done = widget.done;
       _name = widget.name;
     });
+  }
+
+  void _updateBought(bool value) async {
+    final Map<String, dynamic> updateItem = {
+      'data': {'done': value}
+    };
+
+    try {
+      setState(() {
+        _done = value;
+      });
+
+      await API.put(
+        '/activities/${widget.id}',
+        updateItem,
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -72,6 +93,32 @@ class _ActivityWidgetState extends State<ActivityWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Checkbox(
+                  fillColor: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return AppTheme.primary;
+                    }
+
+                    return Colors.grey[400];
+                  }),
+                  shape: const CircleBorder(),
+                  value: _done,
+                  onChanged: (bool? value) => _updateBought(value!),
+                ),
+                _name.length < 35
+                    ? Text(
+                        _name,
+                        style: _done ? _doneStyle : _notDoneStyle,
+                      )
+                    : SizedBox(
+                        width: width * 0.6,
+                        child: Marquee(
+                          text: _name,
+                          style: _done ? _doneStyle : _notDoneStyle,
+                        ),
+                      ),
+              ],
             ),
           ),
         ),

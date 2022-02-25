@@ -1,17 +1,43 @@
+import 'package:dads_app/api/api.client.dart';
+import 'package:dads_app/models/activity_list_item.model.dart';
 import 'package:dads_app/pages/album.page.dart';
+import 'package:dads_app/utils/family.util.dart';
 import 'package:dads_app/utils/theme.util.dart';
+import 'package:dads_app/widgets/activities_page/activity.widget.dart';
 import 'package:dads_app/widgets/album_page/header.widget.dart';
 import 'package:dads_app/widgets/tab.widget.dart';
 import 'package:flutter/material.dart';
 
-class ActivitiesPage extends StatelessWidget {
+class ActivitiesPage extends StatefulWidget {
   const ActivitiesPage({Key? key}) : super(key: key);
 
   static const String routeName = '/activities';
 
   @override
+  State<ActivitiesPage> createState() => _ActivitiesPageState();
+}
+
+class _ActivitiesPageState extends State<ActivitiesPage> {
+  List<ActivityListItem> _activities = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadActivities();
+  }
+
+  void _loadActivities() async {
+    final List<ActivityListItem> _temp = await getFamilyActivities();
+
+    setState(() {
+      _activities = _temp;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -69,7 +95,34 @@ class ActivitiesPage extends StatelessWidget {
             const SizedBox(height: 25.0),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: SizedBox(),
+              child: SizedBox(
+                width: width,
+                height: height * 0.7,
+                child: ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: _activities.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 10),
+                  itemBuilder: (context, i) {
+                    if (i == _activities.length - 1) {
+                      return Column(
+                        children: [
+                          ActivityWidget(
+                            id: _activities[i].id,
+                            name: _activities[i].attributes.short,
+                            done: _activities[i].attributes.done,
+                          ),
+                          const SizedBox(height: 10.0),
+                        ],
+                      );
+                    }
+                    return ActivityWidget(
+                      id: _activities[i].id,
+                      name: _activities[i].attributes.short,
+                      done: _activities[i].attributes.done,
+                    );
+                  },
+                ),
+              ),
             ),
           ],
         ),

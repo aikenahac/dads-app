@@ -10,6 +10,8 @@ import 'package:dads_app/widgets/tab.widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shrink_sidemenu/shrink_sidemenu.dart';
+import 'package:dads_app/utils/build_menu.util.dart';
 
 class AlbumPage extends StatefulWidget {
   const AlbumPage({Key? key}) : super(key: key);
@@ -21,7 +23,12 @@ class AlbumPage extends StatefulWidget {
 }
 
 class _AlbumPageState extends State<AlbumPage> {
+  bool isOpened = false;
+
   final ImagePicker _picker = ImagePicker();
+
+  final GlobalKey<SideMenuState> _sideMenuKey = GlobalKey<SideMenuState>();
+  final GlobalKey<SideMenuState> _endSideMenuKey = GlobalKey<SideMenuState>();
 
   List<AlbumPhoto> _album = [];
 
@@ -68,124 +75,166 @@ class _AlbumPageState extends State<AlbumPage> {
     );
   }
 
+  toggleMenu([bool end = false]) {
+    if (end) {
+      final _state = _endSideMenuKey.currentState!;
+      if (_state.isOpened) {
+        _state.closeSideMenu();
+      } else {
+        _state.openSideMenu();
+      }
+    } else {
+      final _state = _sideMenuKey.currentState!;
+      if (_state.isOpened) {
+        _state.closeSideMenu();
+      } else {
+        _state.openSideMenu();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        color: AppTheme.secondary,
-        width: width,
-        child: Column(
-          children: [
-            const SizedBox(height: 70.0),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 55.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  PageTab(
-                    text: 'Album',
-                    isActive: true,
-                    onTap: () {},
-                  ),
-                  PageTab(
-                    text: 'Activities',
-                    isActive: false,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushNamed(ActivitiesPage.routeName);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            Header(
-              title: 'Family album',
-              description: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Pictures of your loved ones.',
-                      style: AppTheme.textStyle.copyWith(
-                        fontSize: 20.0,
-                      ),
-                    ),
-                    const TextSpan(text: '\n'),
-                    TextSpan(
-                      text: 'In one ',
-                      style: AppTheme.textStyle.copyWith(
-                        fontSize: 20.0,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'space.',
-                      style: AppTheme.textStyle.copyWith(
-                        fontSize: 20.0,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 25.0),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: SizedBox(
-                width: width,
-                height: height * 0.7,
-                child: _album.isNotEmpty
-                    ? GridView.count(
-                        mainAxisSpacing: 7.0,
-                        crossAxisSpacing: 7.0,
-                        crossAxisCount: 3,
-                        physics: const BouncingScrollPhysics(),
-                        children: List.generate(
-                          _album.length,
-                          (i) {
-                            return GestureDetector(
-                              onTap: () => enlargePhoto(
-                                height,
-                                API.baseUrl + _album[i].image.url,
-                              ),
-                              child: PhotoWidget(
-                                image: API.baseUrl + _album[i].image.url,
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    : Container(),
-              ),
-            ),
-          ],
-        ),
+    return SideMenu(
+      key: _endSideMenuKey,
+      background: AppTheme.primary,
+      type: SideMenuType.shrinkNSlide,
+      menu: Padding(
+        padding: const EdgeInsets.only(left: 25.0),
+        child: buildMenu(context),
       ),
-      floatingActionButton: SpeedDial(
-        overlayOpacity: 0.0,
-        backgroundColor: AppTheme.primary,
-        animatedIcon: AnimatedIcons.menu_close,
-        children: [
-          SpeedDialChild(
-            label: 'Camera',
-            child: const Icon(Icons.photo_camera_outlined),
-            onTap: () => _uploadImage('camera'),
-            backgroundColor: AppTheme.primary,
-            foregroundColor: Colors.white,
+      onChange: (_isOpened) {
+        setState(() => isOpened = _isOpened);
+      },
+      child: SideMenu(
+        key: _sideMenuKey,
+        menu: buildMenu(context),
+        type: SideMenuType.shrinkNSlide,
+        onChange: (_isOpened) {
+          setState(() => isOpened = _isOpened);
+        },
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Container(
+            color: AppTheme.secondary,
+            width: width,
+            child: Column(
+              children: [
+                const SizedBox(height: 70.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        onPressed: () => toggleMenu(true),
+                        icon: const Icon(Icons.menu),
+                      ),
+                      PageTab(
+                        text: 'Album',
+                        isActive: true,
+                        onTap: () {},
+                      ),
+                      PageTab(
+                        text: 'Activities',
+                        isActive: false,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushNamed(ActivitiesPage.routeName);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                Header(
+                  title: 'Family album',
+                  description: RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Pictures of your loved ones.',
+                          style: AppTheme.textStyle.copyWith(
+                            fontSize: 20.0,
+                          ),
+                        ),
+                        const TextSpan(text: '\n'),
+                        TextSpan(
+                          text: 'In one ',
+                          style: AppTheme.textStyle.copyWith(
+                            fontSize: 20.0,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'space.',
+                          style: AppTheme.textStyle.copyWith(
+                            fontSize: 20.0,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 5.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: SizedBox(
+                    width: width,
+                    height: height * 0.7,
+                    child: _album.isNotEmpty
+                        ? GridView.count(
+                            mainAxisSpacing: 7.0,
+                            crossAxisSpacing: 7.0,
+                            crossAxisCount: 3,
+                            physics: const BouncingScrollPhysics(),
+                            children: List.generate(
+                              _album.length,
+                              (i) {
+                                return GestureDetector(
+                                  onTap: () => enlargePhoto(
+                                    height,
+                                    API.baseUrl + _album[i].image.url,
+                                  ),
+                                  child: PhotoWidget(
+                                    image: API.baseUrl + _album[i].image.url,
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : Container(),
+                  ),
+                ),
+              ],
+            ),
           ),
-          SpeedDialChild(
-            label: 'Gallery',
-            child: const Icon(Icons.photo),
-            onTap: () => _uploadImage('gallery'),
+          floatingActionButton: SpeedDial(
+            overlayOpacity: 0.0,
             backgroundColor: AppTheme.primary,
-            foregroundColor: Colors.white,
+            animatedIcon: AnimatedIcons.menu_close,
+            children: [
+              SpeedDialChild(
+                label: 'Camera',
+                child: const Icon(Icons.photo_camera_outlined),
+                onTap: () => _uploadImage('camera'),
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+              ),
+              SpeedDialChild(
+                label: 'Gallery',
+                child: const Icon(Icons.photo),
+                onTap: () => _uploadImage('gallery'),
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

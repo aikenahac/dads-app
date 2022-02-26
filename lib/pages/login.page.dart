@@ -63,6 +63,7 @@ class LoginPage extends StatelessWidget {
 
         await _storage.setString('token', token);
 
+        Navigator.of(context).pop();
         Navigator.of(context).pushReplacementNamed(AlbumPage.routeName);
       } catch (e) {
         if (e is BadRequestException) {
